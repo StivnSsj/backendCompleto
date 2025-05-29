@@ -1,6 +1,9 @@
 package co.edu.unicauca.api_rest.application.controller;
 
 import jakarta.validation.Valid;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,12 +54,20 @@ public class AuthController {
      * @return Token JWT si la autenticación es exitosa.
      */
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginDTO loginDto){
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginDTO.getCorreo(), loginDTO.getPassword()));
+                new UsernamePasswordAuthenticationToken(
+                        loginDto.getCorreo(),
+                        loginDto.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = jwtGenerator.generateToken(authentication);
-        return new ResponseEntity<>(new AuthResponseDTO(token), HttpStatus.OK);
+
+        String token = jwtGenerator.generateToken(authentication); // Genera el token
+        List<String> roles = jwtGenerator.getRolesFromJwt(token); // ¡Extrae los roles del token recién generado!
+
+        // Crea un DTO de respuesta que incluye el token y los roles
+        AuthResponseDTO response = new AuthResponseDTO(token, roles);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
