@@ -25,13 +25,6 @@ public class AsignaturaRAController {
         this.asignaturaRAService = asignaturaRAService;
     }
 
-    /**
-     * Permite a un Docente o Coordinador crear un nuevo Resultado de Aprendizaje para una Asignatura.
-     * Rol: Docente, Coordinador
-     * CU-RA-001: Configurar RA por Asignatura
-     * @param dto Datos del RA de asignatura a crear.
-     * @return El RA de asignatura creado con su ID.
-     */
     @PostMapping
     @PreAuthorize("hasAnyAuthority('Docente', 'Coordinador')") // Solo docentes y coordinadores pueden crear
     public ResponseEntity<AsignaturaRADTO> createAsignaturaRA(@Valid @RequestBody AsignaturaRACreateUpdateDTO dto) {
@@ -39,11 +32,6 @@ public class AsignaturaRAController {
         return new ResponseEntity<>(savedRA, HttpStatus.CREATED);
     }
 
-    /**
-     * Obtiene un Resultado de Aprendizaje de Asignatura por su ID.
-     * @param id ID del RA de asignatura.
-     * @return El RA de asignatura.
-     */
     @GetMapping("/{id}")
     public ResponseEntity<AsignaturaRADTO> getAsignaturaRAById(@PathVariable Long id) {
         return asignaturaRAService.getAsignaturaRADTOById(id)
@@ -51,12 +39,6 @@ public class AsignaturaRAController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    /**
-     * Obtiene todos los Resultados de Aprendizaje para una asignatura y un docente específicos.
-     * @param asignaturaId ID de la asignatura.
-     * @param docenteId ID del docente.
-     * @return Lista de RA de asignatura.
-     */
     @GetMapping("/by-asignatura-docente")
     public ResponseEntity<List<AsignaturaRADTO>> getAsignaturaRAsByAsignaturaAndDocente(
             @RequestParam String asignaturaId,
@@ -65,26 +47,12 @@ public class AsignaturaRAController {
         return new ResponseEntity<>(ras, HttpStatus.OK);
     }
 
-    /**
-     * Obtiene todos los Resultados de Aprendizaje gestionados por un docente.
-     * @param docenteId ID del docente.
-     * @return Lista de RA de asignatura.
-     */
     @GetMapping("/by-docente/{docenteId}")
     public ResponseEntity<List<AsignaturaRADTO>> getAsignaturaRAsByDocente(@PathVariable String docenteId) {
         List<AsignaturaRADTO> ras = asignaturaRAService.getAsignaturaRAsByDocente(docenteId);
         return new ResponseEntity<>(ras, HttpStatus.OK);
     }
 
-    /**
-     * Actualiza un Resultado de Aprendizaje de Asignatura existente.
-     * Rol: Docente, Coordinador
-     * CU-RA-001: Configurar RA por Asignatura
-     * CU-RA-003: Ajustar RA Seleccionados (Docente)
-     * @param id ID del RA de asignatura a actualizar.
-     * @param dto Datos actualizados del RA de asignatura.
-     * @return El RA de asignatura actualizado.
-     */
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('Docente', 'Coordinador')")
     public ResponseEntity<AsignaturaRADTO> updateAsignaturaRA(@PathVariable Long id, @Valid @RequestBody AsignaturaRACreateUpdateDTO dto) {
@@ -96,12 +64,6 @@ public class AsignaturaRAController {
         }
     }
 
-    /**
-     * Elimina un Resultado de Aprendizaje de Asignatura.
-     * Rol: Coordinador (o Docente de sus propios RA, con lógica de seguridad adicional)
-     * @param id ID del RA de asignatura a eliminar.
-     * @return Respuesta sin contenido si la eliminación fue exitosa.
-     */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('Docente', 'Coordinador')")
     public ResponseEntity<Void> deleteAsignaturaRA(@PathVariable Long id) {
@@ -113,15 +75,6 @@ public class AsignaturaRAController {
         }
     }
 
-    /**
-     * Permite a un Docente copiar RA de un semestre o periodo anterior.
-     * Rol: Docente
-     * CU-RA-002: Copiar RA de Semestre/Periodo Anterior
-     * @param asignaturaId ID de la asignatura.
-     * @param docenteId ID del docente.
-     * @param previousSemester El semestre/periodo desde el cual copiar.
-     * @return Lista de los nuevos RA copiados para el semestre actual.
-     */
     @PostMapping("/copy-from-semester")
     @PreAuthorize("hasAnyAuthority('Docente')")
     public ResponseEntity<List<AsignaturaRADTO>> copyAsignaturaRAs(
