@@ -8,11 +8,11 @@ INSERT INTO roles (id, nombre) VALUES ('ROL_ESTUDIANTE', 'Estudiante'); -- Agreg
 -- Por favor, reemplaza 'TU_HASH_BCRYPT_PARA_PASSWORD' con el hash real generado para "password".
 -- Por ejemplo: $2a$10$Q7iM0y3sB8w9uC1k2jL5.oXq3p4r5t6u7v8w9x0y1z2A3B4C5D6E7F8G9H0
 INSERT INTO usuarios (nombre, apellido, correo, password, rol_id) VALUES
-('Ana', 'García', 'ana.garcia@unicauca.edu.co', 'TU_HASH_BCRYPT_PARA_PASSWORD', 'ROL_COORDINADOR'),
-('Carlos', 'Pérez', 'carlos.perez@unicauca.edu.co', 'TU_HASH_BCRYPT_PARA_PASSWORD', 'ROL_DOCENTE'),
-('Laura', 'Martínez', 'laura.martinez@evaluador.com', 'TU_HASH_BCRYPT_PARA_PASSWORD', 'ROL_EVALUADOR_EXTERNO'),
-('Juan', 'Guerrero', 'juan.guerrero@unicauca.edu.co', 'TU_HASH_BCRYPT_PARA_PASSWORD', 'ROL_ESTUDIANTE'),
-('Maria', 'Lopez', 'maria.lopez.est@unicauca.edu.co', 'TU_HASH_BCRYPT_PARA_PASSWORD', 'ROL_ESTUDIANTE');
+('Ana', 'García', 'ana.garcia@unicauca.edu.co', '$2b$12$hUzIUkGgE6OUy1i/fmXqvOetbmq.08P4lOQaUpvFkI.TqVoQeAU9i', 'ROL_COORDINADOR'),
+('Carlos', 'Pérez', 'carlos.perez@unicauca.edu.co', '$2b$12$hUzIUkGgE6OUy1i/fmXqvOetbmq.08P4lOQaUpvFkI.TqVoQeAU9i', 'ROL_DOCENTE'),
+('Laura', 'Martínez', 'laura.martinez@evaluador.com', '$2b$12$hUzIUkGgE6OUy1i/fmXqvOetbmq.08P4lOQaUpvFkI.TqVoQeAU9i', 'ROL_EVALUADOR_EXTERNO'),
+('Juan', 'Guerrero', 'juan.guerrero@unicauca.edu.co', '$2b$12$hUzIUkGgE6OUy1i/fmXqvOetbmq.08P4lOQaUpvFkI.TqVoQeAU9i', 'ROL_ESTUDIANTE'),
+('Maria', 'Lopez', 'maria.lopez.est@unicauca.edu.co', '$2b$12$hUzIUkGgE6OUy1i/fmXqvOetbmq.08P4lOQaUpvFkI.TqVoQeAU9i', 'ROL_ESTUDIANTE');
 
 
 -- Datos para docentes (IDs deben coincidir con los de usuarios, ya que docentes.id es FK a usuarios.id)

@@ -118,3 +118,21 @@ CREATE TABLE IF NOT EXISTS evaluacion_detalles (
     FOREIGN KEY (criterio_id) REFERENCES criterios_evaluacion(id),
     FOREIGN KEY (nivel_seleccionado_id) REFERENCES niveles_desempeno(id)
 );
+
+---
+-- Tabla para registrar qué docente imparte qué asignatura en un semestre específico.
+-- Modela la relación Many-to-Many entre asignaturas y docentes con atributos extra.
+CREATE TABLE IF NOT EXISTS asignatura_docente (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY, -- ID único para cada asignación (útil para JPA)
+    asignatura_id VARCHAR(50) NOT NULL,
+    docente_id BIGINT NOT NULL,
+    semestre_academico VARCHAR(10) NOT NULL, -- Ej: "2024-1", "2025-2"
+    es_principal BOOLEAN DEFAULT FALSE,     -- Opcional: Para indicar si es el docente principal de la asignatura en ese semestre
+
+    -- Restricciones de Clave Foránea
+    FOREIGN KEY (asignatura_id) REFERENCES asignaturas(id),
+    FOREIGN KEY (docente_id) REFERENCES docentes(id),
+
+    -- Restricción Única: Un docente solo puede ser asignado a una asignatura una vez por semestre académico
+    CONSTRAINT UQ_asignatura_docente UNIQUE (asignatura_id, docente_id, semestre_academico)
+);
