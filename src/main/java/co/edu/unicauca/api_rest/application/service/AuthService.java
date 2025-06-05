@@ -12,12 +12,16 @@ import co.edu.unicauca.api_rest.security.JwtGenerator;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthService {
@@ -47,8 +51,14 @@ public class AuthService {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(correo, password));
         SecurityContextHolder.getContext().setAuthentication(authentication);
+
         String token = jwtGenerator.generateToken(authentication);
-        return new AuthResponseDTO(token);
+
+        List<String> roles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+
+        return new AuthResponseDTO(token, roles);
     }
 
     @Transactional
@@ -57,7 +67,6 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El correo electrónico ya está registrado.");
         }
 
-        // 1. Crear el usuario
         Usuario usuario = new Usuario();
         usuario.setCorreo(request.getCorreo());
         usuario.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -68,22 +77,15 @@ public class AuthService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "El rol especificado no existe."));
         usuario.setRol(rol);
 
-        Usuario savedUsuario = usuarioRepository.save(usuario); // Guarda el usuario para obtener su ID autogenerado
+        Usuario savedUsuario = usuarioRepository.save(usuario);
 
-        // 2. Lógica condicional para Docente
         if ("ROL_DOCENTE".equals(request.getRolId())) {
-            // Asegúrate de que los datos específicos del docente no sean nulos
             if (request.getTipoIdentificacion() == null || request.getIdentificacion() == null ||
                 request.getTipoDocente() == null || request.getUltimoTitulo() == null) {
-                // Considera un mensaje de error más específico para faltantes de datos del docente
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Faltan datos específicos del docente para el rol ROL_DOCENTE.");
             }
 
             Docente docente = new Docente();
-            // ¡ELIMINADO! NO establecer el ID manualmente cuando se usa @MapsId
-            // docente.setId(savedUsuario.getId()); // <--- ¡QUITA ESTA LÍNEA!
-
-            // Establece la relación con el usuario guardado. Hibernate derivará el ID desde aquí.
             docente.setUsuario(savedUsuario);
 
             docente.setNombres(request.getNombre());
@@ -97,17 +99,21 @@ public class AuthService {
             docenteRepository.save(docente);
         }
 
-        // Después de registrar y guardar el usuario (y docente si aplica), generas el token
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
+        // Obtener los roles del usuario recién guardado
+        List<String> roles = savedUsuario.getAuthorities().stream()
+                                    .map(GrantedAuthority::getAuthority)
+                                    .collect(Collectors.toList());
+
+        // Crear un objeto Authentication para el usuario recién registrado
+        Authentication newAuth = new UsernamePasswordAuthenticationToken(
             savedUsuario.getCorreo(),
-            null, // La contraseña no es necesaria para crear el Authentication token para generar JWT
-            savedUsuario.getAuthorities() // Asegúrate de que tu entidad Usuario implemente UserDetails y sobrescriba getAuthorities()
+            null, // No necesitas la contraseña aquí para crear el token
+            savedUsuario.getAuthorities()
         );
-        // Opcional: Si quieres que este usuario esté autenticado en el contexto de la sesión actual
-        // SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String token = jwtGenerator.generateToken(authentication); // Genera el token con los roles incluidos
+        // Generar el token usando el 'newAuth' creado
+        String tokenForNewUser = jwtGenerator.generateToken(newAuth); // <-- ¡CORREGIDO AQUÍ!
 
-        return new AuthResponseDTO(token);
+        return new AuthResponseDTO(tokenForNewUser, roles);
     }
 }
