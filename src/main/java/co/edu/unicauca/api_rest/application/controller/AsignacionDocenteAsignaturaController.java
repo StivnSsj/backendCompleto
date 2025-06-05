@@ -3,7 +3,6 @@ package co.edu.unicauca.api_rest.application.controller;
 import co.edu.unicauca.api_rest.application.dto.AsignacionDocenteAsignaturaDTO;
 import co.edu.unicauca.api_rest.application.dto.AsignaturaDTO;
 import co.edu.unicauca.api_rest.application.service.AsignacionDocenteAsignaturaService;
-import co.edu.unicauca.api_rest.dominio.model.Asignatura;
 import co.edu.unicauca.api_rest.dominio.model.AsignaturaDocente;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;

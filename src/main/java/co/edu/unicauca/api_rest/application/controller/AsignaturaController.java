@@ -26,7 +26,7 @@ public class AsignaturaController {
     }
     
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('Docente', 'Coordinador')")
+    //@PreAuthorize("hasAnyAuthority('Docente', 'Coordinador')")
     public ResponseEntity<List<AsignaturaDTO>> getAllAsignaturas() {
         System.out.println("Asignaturas");
         List<AsignaturaDTO> asignaturas = asignaturaService.getAllAsignaturas();

@@ -17,4 +17,6 @@ public interface AsignaturaDocenteRepository extends JpaRepository<AsignaturaDoc
     
     // Para encontrar una asignación específica por sus componentes principales:
     Optional<AsignaturaDocente> findByAsignaturaIdAndDocenteIdAndSemestreAcademico(String asignaturaId, Long docenteId, String semestreAcademico);
+    List<AsignaturaDocente> findByDocenteIdAndSemestreAcademico(Long docenteId, String semestreAcademico);
+    List<AsignaturaDocente> findByAsignaturaIdAndSemestreAcademico(String asignaturaId, String semestreAcademico);
 }

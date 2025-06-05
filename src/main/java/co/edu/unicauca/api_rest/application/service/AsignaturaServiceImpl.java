@@ -4,13 +4,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import co.edu.unicauca.api_rest.application.dto.AsignaturaDTO;
+import co.edu.unicauca.api_rest.dominio.exceptions.BadRequestException;
 import co.edu.unicauca.api_rest.dominio.model.Asignatura;
 import co.edu.unicauca.api_rest.dominio.repositories.AsignaturaRepository;
+
+
 
 @Service
 public class AsignaturaServiceImpl implements AsignaturaService {
@@ -33,8 +34,9 @@ public class AsignaturaServiceImpl implements AsignaturaService {
     @Override
     public AsignaturaDTO createAsignatura(AsignaturaDTO asignaturaDTO) {
         // Validación: Verifica si una asignatura con el mismo ID ya existe
+        // En lugar de ResponseStatusException, lanzamos BadRequestException.
         if (asignaturaRepository.existsById(asignaturaDTO.getId())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Asignatura con ID " + asignaturaDTO.getId() + " ya existe.");
+            throw new BadRequestException("Asignatura con ID " + asignaturaDTO.getId() + " ya existe. No se puede crear duplicado.");
         }
 
         Asignatura asignatura = mapToEntity(asignaturaDTO);
@@ -42,10 +44,9 @@ public class AsignaturaServiceImpl implements AsignaturaService {
         return mapToDTO(savedAsignatura);
     }
 
-    // Método auxiliar para mapear DTO a Entidad (necesario para la creación)
     private Asignatura mapToEntity(AsignaturaDTO dto) {
         Asignatura asignatura = new Asignatura();
-        asignatura.setId(dto.getId()); // El ID viene del DTO, ya que no es auto-generado en el esquema
+        asignatura.setId(dto.getId());
         asignatura.setNombre(dto.getNombre());
         asignatura.setDescripcion(dto.getDescripcion());
         asignatura.setCreditos(dto.getCreditos());

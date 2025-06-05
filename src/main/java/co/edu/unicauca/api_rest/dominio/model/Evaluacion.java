@@ -24,10 +24,10 @@ public class Evaluacion {
     private Rubrica rubrica;
 
     @Column(name = "estudiante_id", nullable = false, length = 50)
-    private String estudianteId; // Asumimos String, podría ser objeto Estudiante
+    private String estudianteId;
 
     @Column(name = "evaluador_id", nullable = false, length = 50)
-    private String evaluadorId; // ID del docente o evaluador externo
+    private String evaluadorId;
 
     @Column(name = "fecha_evaluacion", nullable = false)
     private LocalDateTime fechaEvaluacion;

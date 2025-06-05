@@ -1,11 +1,11 @@
 package co.edu.unicauca.api_rest.application.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.edu.unicauca.api_rest.application.dto.AsignaturaDTO;
+import co.edu.unicauca.api_rest.dominio.exceptions.ResourceNotFoundException;
 import co.edu.unicauca.api_rest.dominio.model.Asignatura;
 import co.edu.unicauca.api_rest.dominio.model.AsignaturaDocente;
 import co.edu.unicauca.api_rest.dominio.model.Docente;
@@ -25,8 +25,8 @@ public class AsignacionDocenteAsignaturaService {
 
     @Autowired
     public AsignacionDocenteAsignaturaService(AsignaturaRepository asignaturaRepository,
-                                            DocenteRepository docenteRepository,
-                                            AsignaturaDocenteRepository asignaturaDocenteRepository) {
+                                                DocenteRepository docenteRepository,
+                                                AsignaturaDocenteRepository asignaturaDocenteRepository) {
         this.asignaturaRepository = asignaturaRepository;
         this.docenteRepository = docenteRepository;
         this.asignaturaDocenteRepository = asignaturaDocenteRepository;
@@ -34,28 +34,34 @@ public class AsignacionDocenteAsignaturaService {
 
     /**
      * Asigna un docente a una asignatura para un semestre específico.
-     * Si ya existe la asignación para ese semestre, la ignora o la actualiza si es necesario.
+     * Si ya existe la asignación para ese semestre, la actualiza si es necesario.
      */
     @Transactional
     public AsignaturaDocente asignarDocenteAAsignatura(String asignaturaId, Long docenteId, String semestreAcademico, Boolean esPrincipal) {
+        // Validar existencia de la asignatura y el docente
         Asignatura asignatura = asignaturaRepository.findById(asignaturaId)
-                .orElseThrow(() -> new EntityNotFoundException("Asignatura no encontrada con ID: " + asignaturaId));
+                // Cambiamos EntityNotFoundException por ResourceNotFoundException
+                .orElseThrow(() -> new ResourceNotFoundException("Asignatura no encontrada con ID: " + asignaturaId));
         Docente docente = docenteRepository.findById(docenteId)
-                .orElseThrow(() -> new EntityNotFoundException("Docente no encontrado con ID: " + docenteId));
+                // Cambiamos EntityNotFoundException por ResourceNotFoundException
+                .orElseThrow(() -> new ResourceNotFoundException("Docente no encontrado con ID: " + docenteId));
 
-        // Verificar si la asignación ya existe para evitar duplicados
+        // Verificar si la asignación ya existe para evitar duplicados, o actualizarla
         return asignaturaDocenteRepository.findByAsignaturaIdAndDocenteIdAndSemestreAcademico(asignaturaId, docenteId, semestreAcademico)
             .map(existingAssignment -> {
-                // Si existe, puedes decidir actualizarla o simplemente retornar la existente
+                // Si existe, y los valores son los mismos, simplemente la devolvemos para evitar una actualización innecesaria.
+                if (existingAssignment.getEsPrincipal().equals(esPrincipal)) {
+                    // Opcional: Podrías lanzar un BadRequestException si no quieres "actualizar" si no hay cambios.
+                    // throw new BadRequestException("La asignación ya existe con los mismos parámetros.");
+                    return existingAssignment; // Ya existe con los mismos valores, no se actualiza
+                }
+                // Si existe pero 'esPrincipal' es diferente, la actualizamos
                 existingAssignment.setEsPrincipal(esPrincipal);
                 return asignaturaDocenteRepository.save(existingAssignment);
             })
             .orElseGet(() -> {
-                // Si no existe, crear una nueva
+                // Si no existe, crear una nueva asignación
                 AsignaturaDocente nuevaAsignacion = new AsignaturaDocente(asignatura, docente, semestreAcademico, esPrincipal);
-                // JPA manejará la relación bidireccional si usas los métodos add/remove en las entidades (opcional)
-                // asignatura.addAsignaturaDocente(nuevaAsignacion);
-                // docente.addAsignaturaDocente(nuevaAsignacion);
                 return asignaturaDocenteRepository.save(nuevaAsignacion);
             });
     }
@@ -63,12 +69,26 @@ public class AsignacionDocenteAsignaturaService {
     /**
      * Obtiene todas las asignaturas que imparte un docente específico en un semestre dado.
      */
-     @Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     public List<AsignaturaDTO> getAsignaturasByDocenteAndSemestre(Long docenteId, String semestreAcademico) {
-        List<AsignaturaDocente> asignaciones = asignaturaDocenteRepository.findByDocenteId(docenteId);
+        // Validación de existencia del docente
+        if (!docenteRepository.existsById(docenteId)) {
+            throw new ResourceNotFoundException("Docente no encontrado con ID: " + docenteId);
+        }
+
+        // Obtener asignaciones para el docente. Filtrar por semestre.
+        // Es importante que la relación AsignaturaDocente a Asignatura y Docente no sea LAZY si la usamos fuera de la transacción
+        // o si es LAZY, que los métodos de mapeo se llamen dentro de esta transacción.
+        List<AsignaturaDocente> asignaciones = asignaturaDocenteRepository.findByDocenteIdAndSemestreAcademico(docenteId, semestreAcademico);
+
+        if (asignaciones.isEmpty()) {
+            // No se lanza ResourceNotFoundException si no hay asignaturas, simplemente se devuelve una lista vacía.
+            // Si consideras que es un error no encontrar ninguna asignación, podrías lanzarla.
+            // Para este caso, una lista vacía es una respuesta válida.
+            return List.of(); // Devuelve una lista inmutable vacía
+        }
 
         return asignaciones.stream()
-                .filter(ad -> ad.getSemestreAcademico().equals(semestreAcademico))
                 .map(AsignaturaDocente::getAsignatura) // Obtiene el objeto Asignatura
                 .map(asignatura -> new AsignaturaDTO( // Mapea a AsignaturaDTO
                     asignatura.getId(),
@@ -85,12 +105,37 @@ public class AsignacionDocenteAsignaturaService {
      */
     @Transactional(readOnly = true)
     public List<Docente> getDocentesByAsignaturaAndSemestre(String asignaturaId, String semestreAcademico) {
-        List<AsignaturaDocente> asignaciones = asignaturaDocenteRepository.findByAsignaturaId(asignaturaId);
+        // Validación de existencia de la asignatura
+        if (!asignaturaRepository.existsById(asignaturaId)) {
+            throw new ResourceNotFoundException("Asignatura no encontrada con ID: " + asignaturaId);
+        }
+
+        List<AsignaturaDocente> asignaciones = asignaturaDocenteRepository.findByAsignaturaIdAndSemestreAcademico(asignaturaId, semestreAcademico);
+
+         if (asignaciones.isEmpty()) {
+            return List.of(); // Devuelve una lista inmutable vacía
+        }
+
         return asignaciones.stream()
-                .filter(ad -> ad.getSemestreAcademico().equals(semestreAcademico))
                 .map(AsignaturaDocente::getDocente)
                 .collect(Collectors.toList());
     }
 
-    // Otros métodos como desasignar, actualizar, etc.
+    /**
+     * Elimina una asignación específica de docente a asignatura por sus IDs y semestre.
+     * @param asignaturaId ID de la asignatura
+     * @param docenteId ID del docente
+     * @param semestreAcademico Semestre académico de la asignación
+     */
+    @Transactional
+    public void desasignarDocenteAAsignatura(String asignaturaId, Long docenteId, String semestreAcademico) {
+        // Valida que la asignación exista antes de intentar eliminarla
+        AsignaturaDocente asignacion = asignaturaDocenteRepository.findByAsignaturaIdAndDocenteIdAndSemestreAcademico(
+                asignaturaId, docenteId, semestreAcademico)
+                .orElseThrow(() -> new ResourceNotFoundException("Asignación de docente a asignatura no encontrada para Asignatura ID: " + asignaturaId + ", Docente ID: " + docenteId + " y Semestre: " + semestreAcademico));
+
+        asignaturaDocenteRepository.delete(asignacion);
+    }
+
+    // Otros métodos auxiliares o de negocio si son necesarios
 }

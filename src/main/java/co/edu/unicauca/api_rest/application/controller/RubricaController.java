@@ -26,7 +26,7 @@ public class RubricaController {
     }
 
     @PostMapping
-     @PreAuthorize("hasAuthority('Docente')")
+    @PreAuthorize("hasAuthority('Docente')")
     public ResponseEntity<RubricaDTO> createRubrica(@Valid @RequestBody RubricaCreateUpdateDTO dto) {
         RubricaDTO createdRubrica = rubricaService.createRubrica(dto);
         return new ResponseEntity<>(createdRubrica, HttpStatus.CREATED);
