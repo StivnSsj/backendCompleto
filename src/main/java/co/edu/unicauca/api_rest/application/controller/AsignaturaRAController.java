@@ -42,13 +42,14 @@ public class AsignaturaRAController {
     @GetMapping("/by-asignatura-docente")
     public ResponseEntity<List<AsignaturaRADTO>> getAsignaturaRAsByAsignaturaAndDocente(
             @RequestParam String asignaturaId,
-            @RequestParam String docenteId) {
+            @RequestParam Long docenteId) {
         List<AsignaturaRADTO> ras = asignaturaRAService.getAsignaturaRAsByAsignaturaAndDocente(asignaturaId, docenteId);
         return new ResponseEntity<>(ras, HttpStatus.OK);
     }
 
     @GetMapping("/by-docente/{docenteId}")
-    public ResponseEntity<List<AsignaturaRADTO>> getAsignaturaRAsByDocente(@PathVariable String docenteId) {
+    @PreAuthorize("hasAnyAuthority('Docente', 'Coordinador')")
+    public ResponseEntity<List<AsignaturaRADTO>> getAsignaturaRAsByDocente(@PathVariable Long docenteId) {
         List<AsignaturaRADTO> ras = asignaturaRAService.getAsignaturaRAsByDocente(docenteId);
         return new ResponseEntity<>(ras, HttpStatus.OK);
     }
@@ -79,7 +80,7 @@ public class AsignaturaRAController {
     @PreAuthorize("hasAnyAuthority('Docente')")
     public ResponseEntity<List<AsignaturaRADTO>> copyAsignaturaRAs(
             @RequestParam String asignaturaId,
-            @RequestParam String docenteId,
+            @RequestParam Long docenteId,
             @RequestParam String previousSemester) {
         List<AsignaturaRADTO> copiedRAs = asignaturaRAService.copyAsignaturaRAsFromPreviousSemester(asignaturaId, docenteId, previousSemester);
         return new ResponseEntity<>(copiedRAs, HttpStatus.CREATED);

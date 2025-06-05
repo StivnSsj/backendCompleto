@@ -1,19 +1,33 @@
 package co.edu.unicauca.api_rest.dominio.model;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "roles")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Rol {
     @Id
-    private String id; // VARCHAR(50) PRIMARY KEY
+    private String id; // Ej. "ROL_DOCENTE"
 
-    @Column(name = "nombre", unique = true, nullable = false, length = 100)
-    private String nombre; // Ej: ROL_COORDINADOR, ROL_DOCENTE
+    @Column(nullable = false, unique = true)
+    private String nombre; // Ej. "Docente"
+
+    // Getters y Setters
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 }

@@ -11,7 +11,7 @@ import java.util.List;
 public interface AsignaturaRARepository extends JpaRepository<AsignaturaRA, Long> {
     // Long porque el ID es Long (autogenerado)
     // Métodos personalizados (ejemplo)
-    List<AsignaturaRA> findByAsignaturaIdAndDocenteId(String asignaturaId, String docenteId);
-    List<AsignaturaRA> findByDocenteId(String docenteId);
+    List<AsignaturaRA> findByAsignaturaIdAndDocenteId(String asignaturaId, Long docenteId);
+    List<AsignaturaRA> findByDocenteId(Long docenteId);
     List<AsignaturaRA> findByAsignaturaId(String asignaturaId);
 }

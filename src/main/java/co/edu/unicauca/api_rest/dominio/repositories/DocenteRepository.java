@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import co.edu.unicauca.api_rest.dominio.model.Docente;
 
 @Repository
-public interface DocenteRepository extends JpaRepository<Docente, String> {
+public interface DocenteRepository extends JpaRepository<Docente, Long> {
     // String porque el ID es String
     // Puedes añadir métodos personalizados aquí si los necesitas
 }

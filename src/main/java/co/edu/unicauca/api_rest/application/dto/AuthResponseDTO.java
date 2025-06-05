@@ -1,30 +1,20 @@
 package co.edu.unicauca.api_rest.application.dto;
 
-import java.util.List;
-
 public class AuthResponseDTO {
-    private String accessToken;
-    private List<String> roles; // Añade la lista de roles
+    private String token; // El token JWT generado
 
-    public AuthResponseDTO(String accessToken, List<String> roles) {
-        this.accessToken = accessToken;
-        this.roles = roles;
+    // Constructor
+    public AuthResponseDTO(String token) {
+        this.token = token;
     }
 
-    // Getters y Setters
-    public String getAccessToken() {
-        return accessToken;
+    // Getter
+    public String getToken() {
+        return token;
     }
 
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
-    }
-
-    public List<String> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
+    // Setter (opcional, pero buena práctica si se necesita en algún contexto de mapeo)
+    public void setToken(String token) {
+        this.token = token;
     }
 }

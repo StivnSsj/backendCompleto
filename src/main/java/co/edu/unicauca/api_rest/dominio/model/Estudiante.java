@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class Estudiante {
     @Id
     @Column(name = "id_estudiante", nullable = false, length = 36)
-    private String id;
+    private Long id;
 
     @Column(name = "nombre", nullable = false, length = 100)
     private String nombre;

@@ -55,7 +55,7 @@ public class AsignaturaRAServiceImpl implements AsignaturaRAService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AsignaturaRADTO> getAsignaturaRAsByAsignaturaAndDocente(String asignaturaId, String docenteId) {
+    public List<AsignaturaRADTO> getAsignaturaRAsByAsignaturaAndDocente(String asignaturaId, Long docenteId) {
         return asignaturaRARepository.findByAsignaturaIdAndDocenteId(asignaturaId, docenteId)
                 .stream()
                 .map(this::toDto)
@@ -64,7 +64,7 @@ public class AsignaturaRAServiceImpl implements AsignaturaRAService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AsignaturaRADTO> getAsignaturaRAsByDocente(String docenteId) {
+    public List<AsignaturaRADTO> getAsignaturaRAsByDocente(Long docenteId) {
         return asignaturaRARepository.findByDocenteId(docenteId)
                 .stream()
                 .map(this::toDto)
@@ -108,7 +108,7 @@ public class AsignaturaRAServiceImpl implements AsignaturaRAService {
 
     @Override
     @Transactional
-    public List<AsignaturaRADTO> copyAsignaturaRAsFromPreviousSemester(String asignaturaId, String docenteId, String previousSemester) {
+    public List<AsignaturaRADTO> copyAsignaturaRAsFromPreviousSemester(String asignaturaId, Long docenteId, String previousSemester) {
         List<AsignaturaRA> previousRAs = asignaturaRARepository.findByAsignaturaId(asignaturaId);
 
         List<AsignaturaRA> copiedRAs = previousRAs.stream()
@@ -173,7 +173,7 @@ public class AsignaturaRAServiceImpl implements AsignaturaRAService {
         dto.setId(entity.getId());
         dto.setAsignaturaId(entity.getAsignatura() != null ? entity.getAsignatura().getId() : null);
         dto.setAsignaturaNombre(entity.getAsignatura() != null ? entity.getAsignatura().getNombre() : null);
-        dto.setDocenteId(entity.getDocente() != null ? entity.getDocente().getId() : null);
+        //dto.setDocenteId(entity.getDocente() != null ? entity.getDocente().getId() : null);
         dto.setDocenteNombre(entity.getDocente() != null ? entity.getDocente().getNombres() + " " + entity.getDocente().getApellidos() : null);
         dto.setDescripcion(entity.getDescripcion());
         dto.setSemestreAcademico(entity.getSemestreAcademico());

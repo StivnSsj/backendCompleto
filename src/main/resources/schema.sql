@@ -1,5 +1,4 @@
 -- Tabla para Competencias del Programa (Simulada, para referencia)
--- Si este módulo fuera desarrollado, tendría más campos y relaciones.
 CREATE TABLE IF NOT EXISTS programa_competencias (
     id VARCHAR(50) PRIMARY KEY,
     descripcion VARCHAR(255) NOT NULL,
@@ -23,16 +22,34 @@ CREATE TABLE IF NOT EXISTS asignaturas (
     semestre INT
 );
 
--- Tabla para Docentes (Simulada, para referencia)
-CREATE TABLE IF NOT EXISTS docentes (
+-- Tabla para Roles de Usuario
+CREATE TABLE IF NOT EXISTS roles (
     id VARCHAR(50) PRIMARY KEY,
+    nombre VARCHAR(100) UNIQUE NOT NULL
+);
+
+-- Tabla para Usuarios (Coordinador, Docente, Evaluador Externo)
+CREATE TABLE IF NOT EXISTS usuarios (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    apellido VARCHAR(255) NOT NULL,
+    correo VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL, -- Almacenar hash de la contraseña
+    rol_id VARCHAR(50) NOT NULL,
+    CONSTRAINT fk_rol FOREIGN KEY (rol_id) REFERENCES roles(id)
+);
+
+-- Tabla para Docentes (id es la misma que la de su usuario correspondiente)
+CREATE TABLE IF NOT EXISTS docentes (
+    id BIGINT PRIMARY KEY, -- Clave primaria y también FK a usuarios(id)
     nombres VARCHAR(100) NOT NULL,
     apellidos VARCHAR(100) NOT NULL,
     tipo_identificacion VARCHAR(50),
     identificacion VARCHAR(50) UNIQUE NOT NULL,
     tipo_docente VARCHAR(50),
     correo_institucional VARCHAR(255) UNIQUE NOT NULL,
-    ultimo_titulo VARCHAR(255)
+    ultimo_titulo VARCHAR(255),
+    CONSTRAINT fk_docente_usuario FOREIGN KEY (id) REFERENCES usuarios(id)
 );
 
 -- MODULOS OBLIGATORIOS A DESARROLLAR:
@@ -40,13 +57,13 @@ CREATE TABLE IF NOT EXISTS docentes (
 CREATE TABLE IF NOT EXISTS asignatura_ras (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     asignatura_id VARCHAR(50) NOT NULL,
-    docente_id VARCHAR(50) NOT NULL,
+    docente_id BIGINT NOT NULL, -- Corregido: Ahora es BIGINT para coincidir con docentes(id)
     descripcion VARCHAR(500) NOT NULL,
     semestre_academico VARCHAR(50) NOT NULL, -- Ej: 2024-1, 2024-2
     -- Opcional: Referencia al RAP del programa si se desea un vínculo fuerte desde la DB
     programa_ra_id VARCHAR(50),
     FOREIGN KEY (asignatura_id) REFERENCES asignaturas(id),
-    FOREIGN KEY (docente_id) REFERENCES docentes(id),
+    FOREIGN KEY (docente_id) REFERENCES docentes(id), -- Consistente ahora
     FOREIGN KEY (programa_ra_id) REFERENCES programa_ras(id)
 );
 
@@ -81,14 +98,14 @@ CREATE TABLE IF NOT EXISTS niveles_desempeno (
 CREATE TABLE IF NOT EXISTS evaluaciones (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     rubrica_id BIGINT NOT NULL,
-    estudiante_id VARCHAR(50) NOT NULL, -- Asumimos un ID de estudiante, que podría venir de otro sistema
-    evaluador_id VARCHAR(50) NOT NULL, -- ID del docente o evaluador externo
+    estudiante_id BIGINT NOT NULL, -- Corregido: Ahora es BIGINT para referenciar usuarios(id)
+    evaluador_id BIGINT NOT NULL,   -- Corregido: Ahora es BIGINT para referenciar usuarios(id)
     fecha_evaluacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     puntuacion_total DECIMAL(5,2) NOT NULL,
     retroalimentacion TEXT,
-    FOREIGN KEY (rubrica_id) REFERENCES rubricas(id)
-    -- Asumimos que estudiante_id y evaluador_id se referencian a un sistema externo
-    -- O podríamos crear una tabla de estudiantes para este propósito de prueba
+    FOREIGN KEY (rubrica_id) REFERENCES rubricas(id),
+    FOREIGN KEY (estudiante_id) REFERENCES usuarios(id),
+    FOREIGN KEY (evaluador_id) REFERENCES usuarios(id)
 );
 
 -- Tabla para Almacenar las selecciones de niveles por criterio en una evaluación
@@ -100,21 +117,4 @@ CREATE TABLE IF NOT EXISTS evaluacion_detalles (
     FOREIGN KEY (evaluacion_id) REFERENCES evaluaciones(id),
     FOREIGN KEY (criterio_id) REFERENCES criterios_evaluacion(id),
     FOREIGN KEY (nivel_seleccionado_id) REFERENCES niveles_desempeno(id)
-);
-
--- Tabla para Roles de Usuario (Si quieres manejar roles en la DB para el login)
-CREATE TABLE IF NOT EXISTS roles (
-    id VARCHAR(50) PRIMARY KEY,
-    nombre VARCHAR(100) UNIQUE NOT NULL
-);
-
--- Tabla para Usuarios (Coordinador, Docente, Evaluador Externo)
-CREATE TABLE IF NOT EXISTS usuarios (
-    id VARCHAR(50) PRIMARY KEY,
-    nombre VARCHAR(255) NOT NULL,
-    apellido VARCHAR(255) NOT NULL,
-    correo VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL, -- Almacenar hash de la contraseña
-    rol_id VARCHAR(50) NOT NULL,
-    FOREIGN KEY (rol_id) REFERENCES roles(id)
 );

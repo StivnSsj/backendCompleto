@@ -15,7 +15,7 @@ public class AsignaturaRACreateUpdateDTO {
     private String asignaturaId; // ID de la asignatura
 
     @NotBlank(message = "El ID del docente no puede estar vacío")
-    private String docenteId;    // ID del docente
+    private Long docenteId;    // ID del docente
 
     @NotBlank(message = "La descripción del RA no puede estar vacía")
     @Size(max = 500, message = "La descripción no puede exceder los 500 caracteres")

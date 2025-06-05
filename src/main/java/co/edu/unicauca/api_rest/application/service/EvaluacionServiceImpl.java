@@ -168,10 +168,10 @@ public class EvaluacionServiceImpl implements EvaluacionService {
         }
 
         // Obtener nombres de usuario (estudiante y evaluador)
-        usuarioRepository.findById(entity.getEstudianteId())
+        /*usuarioRepository.findById(entity.getEstudianteId())
                 .ifPresent(u -> dto.setEstudianteNombre(u.getNombre() + " " + u.getApellido()));
         usuarioRepository.findById(entity.getEvaluadorId())
-                .ifPresent(u -> dto.setEvaluadorNombre(u.getNombre() + " " + u.getApellido()));
+                .ifPresent(u -> dto.setEvaluadorNombre(u.getNombre() + " " + u.getApellido()));*/
 
         if (entity.getDetalles() != null) {
             dto.setDetalles(entity.getDetalles().stream()
