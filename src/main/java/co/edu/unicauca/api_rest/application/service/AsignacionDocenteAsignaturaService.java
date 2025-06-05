@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import co.edu.unicauca.api_rest.application.dto.AsignaturaDTO;
 import co.edu.unicauca.api_rest.dominio.model.Asignatura;
 import co.edu.unicauca.api_rest.dominio.model.AsignaturaDocente;
 import co.edu.unicauca.api_rest.dominio.model.Docente;
@@ -62,15 +63,20 @@ public class AsignacionDocenteAsignaturaService {
     /**
      * Obtiene todas las asignaturas que imparte un docente específico en un semestre dado.
      */
-    @Transactional(readOnly = true)
-    public List<Asignatura> getAsignaturasByDocenteAndSemestre(Long docenteId, String semestreAcademico) {
-        // Busca las entidades de unión AsignaturaDocente
+     @Transactional(readOnly = true)
+    public List<AsignaturaDTO> getAsignaturasByDocenteAndSemestre(Long docenteId, String semestreAcademico) {
         List<AsignaturaDocente> asignaciones = asignaturaDocenteRepository.findByDocenteId(docenteId);
 
-        // Filtra por semestre académico y mapea a objetos Asignatura
         return asignaciones.stream()
                 .filter(ad -> ad.getSemestreAcademico().equals(semestreAcademico))
-                .map(AsignaturaDocente::getAsignatura)
+                .map(AsignaturaDocente::getAsignatura) // Obtiene el objeto Asignatura
+                .map(asignatura -> new AsignaturaDTO( // Mapea a AsignaturaDTO
+                    asignatura.getId(),
+                    asignatura.getNombre(),
+                    asignatura.getDescripcion(),
+                    asignatura.getCreditos(),
+                    asignatura.getSemestre()
+                ))
                 .collect(Collectors.toList());
     }
 

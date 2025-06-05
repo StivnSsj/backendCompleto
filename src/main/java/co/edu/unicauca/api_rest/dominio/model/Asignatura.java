@@ -1,5 +1,10 @@
 package co.edu.unicauca.api_rest.dominio.model;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,6 +15,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "asignaturasDocentes"})
+
 public class Asignatura {
     @Id
     private String id; // VARCHAR(50) PRIMARY KEY
@@ -25,4 +32,8 @@ public class Asignatura {
 
     @Column(name = "semestre")
     private Integer semestre;
+
+    @OneToMany(mappedBy = "asignatura", cascade = CascadeType.ALL, orphanRemoval = true)
+    // @JsonIgnore // Podrías usar esto aquí si NUNCA quieres serializar esta colección desde Asignatura
+    private Set<AsignaturaDocente> asignaturasDocentes = new HashSet<>();
 }

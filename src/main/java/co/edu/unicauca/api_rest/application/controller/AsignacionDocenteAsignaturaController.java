@@ -1,6 +1,7 @@
 package co.edu.unicauca.api_rest.application.controller;
 
 import co.edu.unicauca.api_rest.application.dto.AsignacionDocenteAsignaturaDTO;
+import co.edu.unicauca.api_rest.application.dto.AsignaturaDTO;
 import co.edu.unicauca.api_rest.application.service.AsignacionDocenteAsignaturaService;
 import co.edu.unicauca.api_rest.dominio.model.Asignatura;
 import co.edu.unicauca.api_rest.dominio.model.AsignaturaDocente;
@@ -41,11 +42,11 @@ public class AsignacionDocenteAsignaturaController {
     }
 
     @GetMapping("/por-docente/{docenteId}/semestre/{semestreAcademico}")
-    @PreAuthorize("hasAnyAuthority('ROL_DOCENTE', 'ROL_COORDINADOR', 'ROL_EVALUADOR_EXTERNO')")
-    public ResponseEntity<List<Asignatura>> getAsignaturasDeDocente(
+    @PreAuthorize("hasAnyAuthority('Docente', 'Coordinador', 'Evaluador')")
+    public ResponseEntity<List<AsignaturaDTO>> getAsignaturasDeDocente( // Cambia el tipo de retorno aquí
             @PathVariable Long docenteId,
             @PathVariable String semestreAcademico) {
-        List<Asignatura> asignaturas = asignacionService.getAsignaturasByDocenteAndSemestre(docenteId, semestreAcademico);
+        List<AsignaturaDTO> asignaturas = asignacionService.getAsignaturasByDocenteAndSemestre(docenteId, semestreAcademico);
         return new ResponseEntity<>(asignaturas, HttpStatus.OK);
     }
 }

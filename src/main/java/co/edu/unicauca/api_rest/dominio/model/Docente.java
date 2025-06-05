@@ -1,5 +1,10 @@
 package co.edu.unicauca.api_rest.dominio.model;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,20 +15,17 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "asignaturasDocentes"})
+
 public class Docente {
 
-    // Opción A: Clave primaria compartida con Usuario (más limpia si 1:1)
     @Id
-    private Long id; // El ID de este docente es el mismo que el ID del Usuario asociado
+    private Long id;
 
     @OneToOne
-    @MapsId // Indica que la PK de Docente es también una FK que referencia a Usuario
-    @JoinColumn(name = "id") // La columna 'id' en 'docentes' es también FK a 'usuarios.id'
-    private Usuario usuario; // Referencia al usuario asociado
-
-    // Si tu `data.sql` usa IDs String como 'DOCE001', entonces tendrías que cambiar esto a String
-    // y gestionar la generación de ese ID String en el servicio de registro.
-    // Ej: @Id private String id;
+    @MapsId
+    @JoinColumn(name = "id")
+    private Usuario usuario;
 
     private String nombres;
     private String apellidos;
@@ -32,8 +34,12 @@ public class Docente {
     private String tipoDocente;
 
     @Column(unique = true, nullable = false)
-    private String correoInstitucional; // Debería coincidir con el correo del usuario
+    private String correoInstitucional;
 
     private String ultimoTitulo;
+
+     @OneToMany(mappedBy = "docente", cascade = CascadeType.ALL, orphanRemoval = true)
+    // @JsonIgnore // Podrías usar esto aquí si NUNCA quieres serializar esta colección desde Docente
+    private Set<AsignaturaDocente> asignaturasDocentes = new HashSet<>();
 
 }
