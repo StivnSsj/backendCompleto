@@ -1,9 +1,15 @@
 package co.edu.unicauca.api_rest.dominio.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "docentes")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Docente {
 
     // Opción A: Clave primaria compartida con Usuario (más limpia si 1:1)
@@ -30,77 +36,4 @@ public class Docente {
 
     private String ultimoTitulo;
 
-    // Getters y Setters
-
-    public Long getId() { // O String si tu ID es String
-        return id;
-    }
-
-    public void setId(Long id) { // O String id
-        this.id = id;
-    }
-
-    public Usuario getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
-    }
-
-    public String getNombres() {
-        return nombres;
-    }
-
-    public void setNombres(String nombres) {
-        this.nombres = nombres;
-    }
-
-    public String getApellidos() {
-        return apellidos;
-    }
-
-    public void setApellidos(String apellidos) {
-        this.apellidos = apellidos;
-    }
-
-    public String getTipoIdentificacion() {
-        return tipoIdentificacion;
-    }
-
-    public void setTipoIdentificacion(String tipoIdentificacion) {
-        this.tipoIdentificacion = tipoIdentificacion;
-    }
-
-    public String getIdentificacion() {
-        return identificacion;
-    }
-
-    public void setIdentificacion(String identificacion) {
-        this.identificacion = identificacion;
-    }
-
-    public String getTipoDocente() {
-        return tipoDocente;
-    }
-
-    public void setTipoDocente(String tipoDocente) {
-        this.tipoDocente = tipoDocente;
-    }
-
-    public String getCorreoInstitucional() {
-        return correoInstitucional;
-    }
-
-    public void setCorreoInstitucional(String correoInstitucional) {
-        this.correoInstitucional = correoInstitucional;
-    }
-
-    public String getUltimoTitulo() {
-        return ultimoTitulo;
-    }
-
-    public void setUltimoTitulo(String ultimoTitulo) {
-        this.ultimoTitulo = ultimoTitulo;
-    }
 }

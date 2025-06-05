@@ -1,6 +1,10 @@
 package co.edu.unicauca.api_rest.dominio.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import org.springframework.security.core.GrantedAuthority; // Asegúrate de que esta entidad sea UserDetails
 import org.springframework.security.core.authority.SimpleGrantedAuthority; // Asegúrate de esta importación
 import org.springframework.security.core.userdetails.UserDetails; // Implementar UserDetails
@@ -10,6 +14,9 @@ import java.util.Collections; // Para Collections.singletonList
 
 @Entity
 @Table(name = "usuarios")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Usuario implements UserDetails { // Implementa UserDetails
 
     @Id
@@ -28,56 +35,6 @@ public class Usuario implements UserDetails { // Implementa UserDetails
     @ManyToOne(fetch = FetchType.EAGER) // Eager para que el rol se cargue con el usuario
     @JoinColumn(name = "rol_id", nullable = false)
     private Rol rol;
-
-    // Getters and Setters
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getCorreo() {
-        return correo;
-    }
-
-    public void setCorreo(String correo) {
-        this.correo = correo;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getApellido() {
-        return apellido;
-    }
-
-    public void setApellido(String apellido) {
-        this.apellido = apellido;
-    }
-
-    public Rol getRol() {
-        return rol;
-    }
-
-    public void setRol(Rol rol) {
-        this.rol = rol;
-    }
 
     // Métodos de UserDetails
     @Override

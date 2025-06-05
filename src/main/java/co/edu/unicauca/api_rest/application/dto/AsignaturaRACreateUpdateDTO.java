@@ -14,7 +14,7 @@ public class AsignaturaRACreateUpdateDTO {
     @NotBlank(message = "El ID de la asignatura no puede estar vacío")
     private String asignaturaId; // ID de la asignatura
 
-    @NotBlank(message = "El ID del docente no puede estar vacío")
+    @NotNull(message = "El ID del docente no puede ser nulo")
     private Long docenteId;    // ID del docente
 
     @NotBlank(message = "La descripción del RA no puede estar vacía")

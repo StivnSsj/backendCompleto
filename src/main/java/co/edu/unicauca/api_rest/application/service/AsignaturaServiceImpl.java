@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import co.edu.unicauca.api_rest.application.dto.AsignaturaDTO;
 import co.edu.unicauca.api_rest.dominio.model.Asignatura;
@@ -20,15 +22,38 @@ public class AsignaturaServiceImpl implements AsignaturaService {
         this.asignaturaRepository = asignaturaRepository;
     }
 
+    @Override
     public List<AsignaturaDTO> getAllAsignaturas() {
         List<Asignatura> asignaturas = asignaturaRepository.findAll();
-        // Mapea la lista de entidades Asignatura a una lista de AsignaturaDTOs
         return asignaturas.stream()
-                .map(this::mapToDTO) // Usa un método auxiliar para mapear
+                .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
 
-    // Método auxiliar para mapear la entidad a DTO
+    @Override
+    public AsignaturaDTO createAsignatura(AsignaturaDTO asignaturaDTO) {
+        // Validación: Verifica si una asignatura con el mismo ID ya existe
+        if (asignaturaRepository.existsById(asignaturaDTO.getId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Asignatura con ID " + asignaturaDTO.getId() + " ya existe.");
+        }
+
+        Asignatura asignatura = mapToEntity(asignaturaDTO);
+        Asignatura savedAsignatura = asignaturaRepository.save(asignatura);
+        return mapToDTO(savedAsignatura);
+    }
+
+    // Método auxiliar para mapear DTO a Entidad (necesario para la creación)
+    private Asignatura mapToEntity(AsignaturaDTO dto) {
+        Asignatura asignatura = new Asignatura();
+        asignatura.setId(dto.getId()); // El ID viene del DTO, ya que no es auto-generado en el esquema
+        asignatura.setNombre(dto.getNombre());
+        asignatura.setDescripcion(dto.getDescripcion());
+        asignatura.setCreditos(dto.getCreditos());
+        asignatura.setSemestre(dto.getSemestre());
+        return asignatura;
+    }
+
+    // Método auxiliar para mapear Entidad a DTO
     private AsignaturaDTO mapToDTO(Asignatura asignatura) {
         AsignaturaDTO dto = new AsignaturaDTO();
         dto.setId(asignatura.getId());
@@ -38,5 +63,4 @@ public class AsignaturaServiceImpl implements AsignaturaService {
         dto.setSemestre(asignatura.getSemestre());
         return dto;
     }
-    
 }

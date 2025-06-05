@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,5 +31,12 @@ public class AsignaturaController {
         System.out.println("Asignaturas");
         List<AsignaturaDTO> asignaturas = asignaturaService.getAllAsignaturas();
         return new ResponseEntity<>(asignaturas, HttpStatus.OK);
+    }
+
+    @PostMapping
+    @PreAuthorize("hasAnyAuthority('Docente', 'Coordinador')")
+    public ResponseEntity<AsignaturaDTO> createAsignatura(@RequestBody AsignaturaDTO asignaturaDTO) {
+        AsignaturaDTO createdAsignatura = asignaturaService.createAsignatura(asignaturaDTO);
+        return new ResponseEntity<>(createdAsignatura, HttpStatus.CREATED); // Retorna 201 Created
     }
 }

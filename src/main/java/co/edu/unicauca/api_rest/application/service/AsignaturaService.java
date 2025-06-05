@@ -6,4 +6,6 @@ import co.edu.unicauca.api_rest.application.dto.AsignaturaDTO;
 
 public interface AsignaturaService {
      public List<AsignaturaDTO> getAllAsignaturas();
+     AsignaturaDTO createAsignatura(AsignaturaDTO asignaturaDTO);
+     
 }
